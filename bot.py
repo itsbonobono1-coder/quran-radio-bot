@@ -1,7 +1,7 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, ContextTypes
 
-TOKEN = "حط التوكن الجديد هنا"
+TOKEN = "8489184890:AAHLrgKqEL3wVwPwduQpV3V-_g5aQC5aPk8"
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
