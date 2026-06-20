@@ -14,7 +14,7 @@ OWNER_ID = 8128064754
 
 user_states = {}
 
-Database
+#Database
 
 conn = sqlite3.connect("database.db")
 cur = conn.cursor()
