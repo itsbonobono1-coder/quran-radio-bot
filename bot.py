@@ -33,10 +33,52 @@ async def button_click(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     elif query.data == "dosary":
         await query.message.reply_text("تم اختيار ياسر الدوسري")
+from telegram.ext import MessageHandler, filters
+import sqlite3
 
+user_states = {}
+
+async def addrtmp(update: Update, context: ContextTypes.DEFAULT_TYPE):
+user_states[update.effective_user.id] = "waiting_name"
+await update.message.reply_text("ابعت اسم القناة")
+
+async def text_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+user_id = update.effective_user.id
+
+if user_id not in user_states:
+    return
+
+state = user_states[user_id]
+
+if state == "waiting_name":
+    context.user_data["channel_name"] = update.message.text
+    user_states[user_id] = "waiting_rtmp"
+    await update.message.reply_text("ابعت RTMP")
+
+elif state == "waiting_rtmp":
+    conn = sqlite3.connect("database.db")
+    cur = conn.cursor()
+
+    cur.execute(
+        "INSERT INTO channels(user_id,name,rtmp) VALUES(?,?,?)",
+        (
+            user_id,
+            context.user_data["channel_name"],
+            update.message.text
+        )
+    )
+
+    conn.commit()
+    conn.close()
+
+    del user_states[user_id]
+
+    await update.message.reply_text("تم حفظ القناة ✅")
 app = Application.builder().token(TOKEN).build()
 
 app.add_handler(CommandHandler("start", start))
+app.add_handler(CommandHandler("addrtmp", addrtmp))
+app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, text_handler))
 app.add_handler(CallbackQueryHandler(button_click))
 
 app.run_polling()
